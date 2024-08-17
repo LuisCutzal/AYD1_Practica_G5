@@ -1,0 +1,6 @@
+uname = "ADMIN"
+pwd = "Optimuz2025$$"
+cdir = "./config_dir/"
+wltloc = "./config_dir/"
+wltpwd = "Optimuz2025$$"
+dsn = "ogeff2npsuuv412j_low"
