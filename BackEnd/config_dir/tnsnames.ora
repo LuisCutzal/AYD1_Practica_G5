@@ -1,0 +1,8 @@
+ogeff2npsuuv412j_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.sa-bogota-1.oraclecloud.com))(connect_data=(service_name=gd7dbbe4e2faec4_ogeff2npsuuv412j_high.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.sa-bogota-1.oraclecloud.com, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+ogeff2npsuuv412j_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.sa-bogota-1.oraclecloud.com))(connect_data=(service_name=gd7dbbe4e2faec4_ogeff2npsuuv412j_low.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.sa-bogota-1.oraclecloud.com, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+ogeff2npsuuv412j_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.sa-bogota-1.oraclecloud.com))(connect_data=(service_name=gd7dbbe4e2faec4_ogeff2npsuuv412j_medium.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.sa-bogota-1.oraclecloud.com, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+
+
