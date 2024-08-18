@@ -1,16 +1,15 @@
 from flask import Flask
-from login import setup_login_routes
-from register import register_route
+from login import login_routes, register_route, logouto_route
 app = Flask(__name__)
-
 """
 @app.route("/hola", methods=['GET'])
 def hola():
     return "hola mundo"
 """
 
-setup_login_routes(app)
+login_routes(app)
 register_route(app)
+logouto_route(app)
 
 if __name__ == '__main__':
     app.run(debug=True)
