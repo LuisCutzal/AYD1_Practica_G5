@@ -214,3 +214,88 @@ def get_notes(cursor):
     pinned = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
 
     return {"recent": recent, "pinned": pinned}
+
+def get_notes_route(app):
+    @app.route('/note/<int:action>', methods=['GET'])
+    def get_note(action):
+        """
+        # action:
+        # pinned and recent notes - 1
+        # archived notes - 2
+
+        # RESPONSE
+        # Pinned and recent
+        {
+            "msg": "Lista de notas",
+            "data": {
+                "recent": [
+                    {
+                        "description": "Practica Unica",
+                        "id": 1,
+                        "label": "PRODUCTOS",
+                        "shared": 0,
+                        "title": "Practica AyD1"
+                    }
+                ],
+                "pinned": [
+                    {
+                        "description": "Practica Unica",
+                        "id": 1,
+                        "label": "PRODUCTOS",
+                        "shared": 0,
+                        "title": "Practica AyD1"
+                    }
+                ]
+            }
+        }
+
+        # Archived
+        {
+            "msg": "Lista de notas",
+            "data": [
+                {
+                    "description": "Practica Unica",
+                    "id": 1,
+                    "label": "PRODUCTOS",
+                    "shared": 0,
+                    "title": "Practica AyD1"
+                }
+            ]
+        }
+        """
+
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            if action == 1:
+                response_data = get_notes(cursor)
+            
+            elif action == 2:
+                response_data = get_archived_notes(cursor)
+            
+            else:
+                return jsonify({"msg": "Error al obtener las notas", "error": "Accion inválida"}), 500
+
+            return jsonify({"msg": "Lista de notas", "data": response_data}), 200
+        
+        except Exception as e:
+            return jsonify({"msg": "Error al obtener las notas", "error": str(e)}), 500
+        
+        finally:
+            cursor.close()
+            connection.close()
+
+def get_archived_notes(cursor):
+
+    sql = """
+        SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
+        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 3 ORDER BY id_nota
+    """
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    response_data = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
+
+    return response_data

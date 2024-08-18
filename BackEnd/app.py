@@ -1,6 +1,6 @@
 from flask import Flask
 from login import login_routes, register_route, logouto_route
-from note import add_note_route, change_note_status_route
+from note import add_note_route, change_note_status_route, get_notes_route
 
 app = Flask(__name__)
 """
@@ -14,6 +14,7 @@ register_route(app)
 logouto_route(app)
 add_note_route(app)
 change_note_status_route(app)
+get_notes_route(app)
 
 if __name__ == '__main__':
     app.run(debug=True)
