@@ -299,3 +299,51 @@ def get_archived_notes(cursor):
     response_data = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
 
     return response_data
+
+def unarchive_note(app):
+    @app.route('/note/unarchive', methods=['PUT'])
+    def unarchive_note():
+        """
+        # REQUEST
+        {
+            "id": 1
+        }
+
+        # RESPONSE - arreglo con las notas aun archivadas
+        {
+            "msg": "Nota Desarchivada correctamente",
+            "data": [
+                {
+                    "description": "Practica Unica",
+                    "id": 1,
+                    "label": "PRODUCTOS",
+                    "shared": 0,
+                    "title": "Practica AyD1"
+                }
+            ]
+        }
+        """
+
+        data = request.json
+
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            sql = """
+                UPDATE nota SET ESTADO = 1 where id_nota = :id
+            """
+
+            cursor.execute(sql, {'id': data.get('id')})
+            connection.commit()
+
+            response_data = get_archived_notes(cursor)
+
+            return jsonify({"msg": "Nota desarchivada correctamente", "data": response_data}), 200
+        
+        except Exception as e:
+            return jsonify({"msg": "Error al desarchivar la nota", "error": str(e)}), 500
+        
+        finally:
+            cursor.close()
+            connection.close()
