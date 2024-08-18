@@ -109,7 +109,7 @@ def add_label(label):
 
 def get_id_label(label, cursor):
     sql = """ 
-            SELECT * FROM etiqueta WHERE NOMBRE = :label
+        SELECT * FROM etiqueta WHERE NOMBRE = :label
     """
     
     cursor.execute(sql, {'label': label})
@@ -117,3 +117,100 @@ def get_id_label(label, cursor):
     record = cursor.fetchone()
 
     return record
+
+def change_note_status_route(app):
+    @app.route('/note/change_status', methods=['PUT'])
+    def update_status():
+        """
+        # status:
+        # delete - 0
+        # unpinned - 1 
+        # pinned - 2
+        # archive - 3
+
+        # REQUEST
+        {
+            "id": 1,
+            "status": 2
+        }
+
+        # RESPONSE
+        {
+            "msg": "Archivado correctamente",
+            "data": {
+                "recent": [
+                    {
+                        "description": "Practica Unica",
+                        "id": 1,
+                        "label": "PRODUCTOS",
+                        "shared": 0,
+                        "title": "Practica AyD1"
+                    }
+                ],
+                "pinned": [
+                    {
+                        "description": "Practica Unica",
+                        "id": 1,
+                        "label": "PRODUCTOS",
+                        "shared": 0,
+                        "title": "Practica AyD1"
+                    }
+                ]
+            }
+        }
+        """
+
+        data = request.json
+
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            sql = """
+                UPDATE nota SET ESTADO = :status where id_nota = :id
+            """
+
+            cursor.execute(sql, {'status': data.get('status'), 'id': data.get('id')})
+            connection.commit()
+
+            response_data = get_notes(cursor)
+
+            status = {
+                0: 'Eliminada',
+                1: 'Desfijada',
+                2: 'Fijada',
+                3: 'Archivada'
+            }
+
+            return jsonify({"msg": "Nota " + status[data['status']] + " correctamente", "data": response_data}), 200
+        
+        except Exception as e:
+            return jsonify({"msg": "Error al actualizar la nota", "error": str(e)}), 500
+        
+        finally:
+            cursor.close()
+            connection.close()
+
+def get_notes(cursor):
+
+    sql = """
+        SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
+        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 1 ORDER BY id_nota
+    """
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    recent = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
+
+    sql = """
+        SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
+        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 2 ORDER BY id_nota
+    """
+
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    pinned = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
+
+    return {"recent": recent, "pinned": pinned}
