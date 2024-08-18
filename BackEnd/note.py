@@ -300,7 +300,7 @@ def get_archived_notes(cursor):
 
     return response_data
 
-def unarchive_note(app):
+def unarchive_note_route(app):
     @app.route('/note/unarchive', methods=['PUT'])
     def unarchive_note():
         """
@@ -347,3 +347,43 @@ def unarchive_note(app):
         finally:
             cursor.close()
             connection.close()
+
+def get_labels_route(app):
+    @app.route('/label', methods=['GET'])
+    def get_label():
+        """
+        # RESPONSE
+        {
+            "data": [
+                {
+                    "id": 1,
+                    "name": "PRODUCTOS"
+                }
+            ],
+            "msg": "Lista de etiquetas"
+        }
+        """
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+
+            response_data = get_labels(cursor)
+
+            return jsonify({"msg": "Lista de etiquetas", "data": response_data}), 200
+        
+        except Exception as e:
+            return jsonify({"msg": "Error al obtener las etiquetas", "error": str(e)}), 500
+        
+        finally:
+            cursor.close()
+            connection.close()
+
+def get_labels(cursor):
+
+    sql = """
+        SELECT * FROM etiqueta
+    """
+    cursor.execute(sql)
+    results = cursor.fetchall()
+
+    return [{"id": result[0], "name": result[1]} for result in results]
