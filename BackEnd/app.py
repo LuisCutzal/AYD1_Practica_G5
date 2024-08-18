@@ -1,6 +1,6 @@
 from flask import Flask
 from login import setup_login_routes
-
+from register import register_route
 app = Flask(__name__)
 
 """
@@ -10,7 +10,7 @@ def hola():
 """
 
 setup_login_routes(app)
-
+register_route(app)
 
 if __name__ == '__main__':
     app.run(debug=True)
