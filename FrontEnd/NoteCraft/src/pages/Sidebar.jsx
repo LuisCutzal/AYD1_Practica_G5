@@ -1,5 +1,30 @@
+import { useState } from "react";
+
+//local imports
+import NoteForm from "../components/NoteForm";
 
 function Sidebar() {
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [tags, setTags] = useState(['Trabajo', 'Personal']);
+    const [notes, setNotes] = useState([]);
+  
+    const openModal = () => {
+      setModalOpen(true);
+    };
+  
+    const closeModal = () => {
+      setModalOpen(false);
+    };
+  
+    const addTag = (newTag) => {
+      setTags([...tags, newTag]);
+    };
+  
+    const saveNote = (note) => {
+      setNotes([...notes, note]);
+    };
+  
+
     return (
         <>
             <div className="w-64 p-6">
@@ -15,7 +40,9 @@ function Sidebar() {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="size-6">
                             <path d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
-                        <a href="#" className="text-gray-700 hover:text-blue-500">Add Note</a>
+                        <a href="#" className="text-gray-700 hover:text-blue-500"
+                            onClick={openModal}>Add Note</a>
+                        {isModalOpen && ( <NoteForm isOpen={isModalOpen} onClose={closeModal} existingTags={tags} addTag={addTag} saveNote={saveNote} /> )}
                     </li>
                     <li className="mb-10 flex flex-1 gap-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="size-6">
