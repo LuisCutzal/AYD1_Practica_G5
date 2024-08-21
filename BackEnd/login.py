@@ -78,6 +78,7 @@ def register_route(app):
         """
         
 def logouto_route(app):
+    @app.route('/logout', methods=['GET'])
     def logOut():
         return jsonify({"msg": "Logout successful"}), 200
     
