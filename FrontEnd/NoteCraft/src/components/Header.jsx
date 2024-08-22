@@ -1,7 +1,11 @@
 import propTypes from 'prop-types';
 
-const Header = ({isLoggedIn, onLogout, onLogin, onRegister}) => {
+const Header = ({isLoggedIn, onLogout, userName}) => {
 
+    const handleLogout = () => {
+        onLogout()
+    }
+    
     return (
         <header className="w-full bg-white shadow-sm p-4 flex justify-between items-center">
             <div className="container mx-auto flex justify-between items-center">
@@ -11,10 +15,17 @@ const Header = ({isLoggedIn, onLogout, onLogin, onRegister}) => {
             <ul className="flex space-x-4">
               <li>
                 <button
-                  onClick={onLogout}
+                  onClick={handleLogout}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 focus:outline-none"
                 >
                   Cerrar Sesión
+                </button>
+              </li>
+              <li>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
+                >
+                  {userName}
                 </button>
               </li>
             </ul>
@@ -22,18 +33,10 @@ const Header = ({isLoggedIn, onLogout, onLogin, onRegister}) => {
             <ul className="flex space-x-4">
               <li>
                 <button
-                  onClick={onLogin}
+                  // onClick={() => navigate('/login')}
                   className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none"
                 >
                   Iniciar Sesión
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={onRegister}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 focus:outline-none"
-                >
-                  Registrarse
                 </button>
               </li>
             </ul>
@@ -47,8 +50,7 @@ const Header = ({isLoggedIn, onLogout, onLogin, onRegister}) => {
 Header.propTypes = {
     isLoggedIn: propTypes.bool.isRequired,
     onLogout: propTypes.func.isRequired,
-    onLogin: propTypes.func.isRequired,
-    onRegister: propTypes.func.isRequired
+    userName: propTypes.string  
 }
 
 export default Header
