@@ -1,8 +1,24 @@
 from flask import request, jsonify
 from connection import get_connection
+from functools import wraps
+
+
+def token_required(f):
+    @wraps(f)
+    def decorador(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        if not token:
+            return jsonify({'Msg': 'Token es necesario'}), 403
+        token = token.split(" ")[1]
+        if len(token) == 0:  # Verifica que el token no esté vacío
+            return jsonify({'Msg': 'Token inválido'}), 403
+        return f(*args, **kwargs)
+    return decorador
+
 
 def add_note_route(app):
     @app.route('/note', methods=['POST'])
+    @token_required
     def add_note():
         """ 
         # Request
@@ -120,6 +136,7 @@ def get_id_label(label, cursor):
 
 def change_note_status_route(app):
     @app.route('/note/change_status', methods=['PUT'])
+    @token_required
     def update_status():
         """
         # status:
@@ -217,6 +234,7 @@ def get_notes(cursor):
 
 def get_notes_route(app):
     @app.route('/note/<int:action>', methods=['GET'])
+    @token_required
     def get_note(action):
         """
         # action:
@@ -302,6 +320,7 @@ def get_archived_notes(cursor):
 
 def unarchive_note_route(app):
     @app.route('/note/unarchive', methods=['PUT'])
+    @token_required
     def unarchive_note():
         """
         # REQUEST
@@ -350,6 +369,7 @@ def unarchive_note_route(app):
 
 def get_labels_route(app):
     @app.route('/label', methods=['GET'])
+    @token_required
     def get_label():
         """
         # RESPONSE
