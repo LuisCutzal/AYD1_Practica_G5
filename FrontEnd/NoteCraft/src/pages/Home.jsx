@@ -1,6 +1,6 @@
 
 //local imports
-import Sidebar from "./Sidebar";
+import Sidebar from "../components/Sidebar";
 import NoteCard  from "../components/NoteCard";
 function Home() {
   return (
