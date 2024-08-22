@@ -3,7 +3,7 @@ import types from 'prop-types';
 //local imports 
 import NoteCard from "./NoteCard";
 
-const NoteList = ({notes, onDeleteNote, onEditNote, onPinNote }) => {
+const NoteList = ({notes, onDelete, onEdit, onPin, onShare }) => {
     if (notes.length === 0) {
         return <p className="text-center text-gray-500 mt-10">No hay notas disponibles.</p>;
       }
@@ -13,13 +13,16 @@ const NoteList = ({notes, onDeleteNote, onEditNote, onPinNote }) => {
           {notes.map((note) => (
             <NoteCard 
             key={note.id} 
+            id={note.id}
             title={note.title} 
             description={note.description} 
             tag={note.tag}
             isPinned={note.isPinned}
-            onDelete={onDeleteNote}
-            onEdit={onEditNote}
-            onPin={onPinNote} />
+            onDelete={onDelete}
+            onEdit={()=>onEdit(note)}
+            onPin={()=>onPin(note.id)}
+            onShare={()=>onShare(note.id)}
+            />
           ))}
         </div>
       )
@@ -27,8 +30,9 @@ const NoteList = ({notes, onDeleteNote, onEditNote, onPinNote }) => {
 
 NoteList.propTypes = {
     notes: types.array.isRequired,
-    onDeleteNote: types.func.isRequired,
-    onEditNote: types.func.isRequired,
-    onPinNote: types.func.isRequired
+    onDelete: types.func.isRequired,
+    onEdit: types.func.isRequired,
+    onPin: types.func.isRequired,
+    onShare: types.func.isRequired
 }
 export default NoteList;
