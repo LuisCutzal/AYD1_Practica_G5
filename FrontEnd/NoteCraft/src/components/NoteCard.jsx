@@ -1,6 +1,6 @@
 
 // eslint-disable-next-line react/prop-types
-function NoteCard({id, title, description, tag, onDelete, onEdit, onPin}) {
+function NoteCard({id, title, description, tag, onDelete, onEdit, onPin, isPinned, onShare}) {
   const handleDelete = () => {
     if (window.confirm('¿Estás seguro de eliminar esta nota?')) {
       onDelete(id);
@@ -21,7 +21,10 @@ function NoteCard({id, title, description, tag, onDelete, onEdit, onPin}) {
     <div className="absolute top-2 right-2 flex space-x-2">
       <button onClick={onEdit} className="text-yellow-500 hover:text-yellow-600">✏️</button>
       <button onClick={handleDelete} className="text-red-500 hover:text-red-600">🗑️</button>
-      <button onClick={onPin} className="text-blue-500 hover:text-blue-600">📌</button>
+      <button onClick={onPin} className="text-blue-500 hover:text-blue-600">
+      {isPinned ? '📍': '📌'}
+      </button>
+      <button onClick={() => onShare(id)} className="text-green-500 hover:text-green-600">🔗</button>
     </div>
   </div>
   )
