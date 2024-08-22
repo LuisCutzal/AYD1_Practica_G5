@@ -1,76 +1,154 @@
-import { useState } from "react"
+/* eslint-disable no-unused-vars */
+import { useState, useEffect } from "react"
 
-//local imports
+// Local imports
 import Sidebar from "../components/Sidebar"
 import Header from "../components/Header"
 import NoteList from "../components/NoteList"
-import NoteForm from "../components/NoteForm"
+import ShareModal from "../components/ShaderModal"
+import NoteEdit from "../components/NoteEdit"
 
 function Home() {
-  const [view, setView] = useState('login')
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(true)
+  const [isShareModalOpen, setShareModalOpen] = useState(false)
+  const [selectedNoteId, setSelectedNoteId] = useState(null)
+  const [isNoteFormOpen, setNoteFormOpen] = useState(false)
   const [noteToEdit, setNoteToEdit] = useState(null)
+  const [pinnedNotes, setPinnedNotes] = useState([])
+  const [archivedNotes, setArchivedNotes] = useState([])
+  const [recentNotes, setRecentNotes] = useState([])
+  const [showArchivedNotes, setShowArchivedNotes] = useState(false)
 
-  //example of notes to be displayed
-  const [notes, setNotes] = useState([
-    { id: 1, title: 'Nota 1', description: 'Descripción de la nota 1', tag: 'Trabajo' },
-    { id: 2, title: 'Nota 2', description: 'Descripción de la nota 2', tag: 'Personal' },
-    { id: 3, title: 'Nota 3', description: 'Descripción de la nota 3', tag: 'Trabajo' },
-    { id: 4, title: 'Nota 4', description: 'Descripción de la nota 4', tag: 'Personal' },
-    { id: 5, title: 'Nota 5', description: 'Descripción de la nota 5', tag: 'Trabajo' },
-    { id: 6, title: 'Nota 6', description: 'Descripción de la nota 6', tag: 'Personal' },
-    { id: 7, title: 'Nota 7', description: 'Descripción de la nota 7', tag: 'Trabajo' },
-    { id: 8, title: 'Nota 8', description: 'Descripción de la nota 8', tag: 'Personal' },
-    { id: 9, title: 'Nota 9', description: 'Descripción de la nota 9', tag: 'Trabajo' },
-    { id: 10, title: 'Nota 10', description: 'Descripción de la nota 10', tag: 'Personal' },
-    { id: 11, title: 'Nota 11', description: 'Descripción de la nota 11', tag: 'Trabajo' },
-    { id: 12, title: 'Nota 12', description: 'Descripción de la nota 12', tag: 'Personal' },
-    { id: 13, title: 'Nota 13', description: 'Descripción de la nota 13', tag: 'Trabajo' },
-  ])
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchNotes(1); // Cargar notas fijadas y recientes
+    }
+  }, [isLoggedIn]);
 
-  const handleDeleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
+  const fetchNotes = async (action) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/${action}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (action === 1) {
+          setPinnedNotes(data.data.pinned);
+          setRecentNotes(data.data.recent);
+        } else if (action === 2) {
+          setArchivedNotes(data.data);
+          setShowArchivedNotes(true); // Mostrar notas archivadas
+        }
+      } else {
+        console.error('Error al cargar las notas');
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+    }
   }
 
-  // const handleLogin = () => {
-  //   setIsLoggedIn(true)
-  //   setView('notes')
-  // }
+  const handleShowArchivedNotes = () => {
+    fetchNotes(2)
+  };
 
   const handleLogout = () => {
     setIsLoggedIn(false)
-    setView('login')
   }
 
-  const handleEditNote = (id) => {
-    const note = notes.find(note => note.id === id);
-    setNoteToEdit(note)
-    setView('edit')
-  }
-
-  const handleUpdateNote = (updatedNote) => {
-    setNotes(notes.map(note => note.id === updatedNote.id ? updatedNote : note));
-    setView('notes')
+  const handleDeleteNote = (id) => {
+    setPinnedNotes(pinnedNotes.filter(note => note.id !== id))
+    setRecentNotes(recentNotes.filter(note => note.id !== id))
+    setArchivedNotes(archivedNotes.filter(note => note.id !== id))
   }
 
   const handlePinNote = (id) => {
-    setNotes(notes.map(note => note.id === id ? { ...note, isPinned: !note.isPinned } : note).sort((a, b) => b.isPinned - a.isPinned));
+    // Implementar la lógica para fijar y des-fijar notas
   }
 
+  const handleEditNote = (note) => {
+    setNoteToEdit(note)
+    setNoteFormOpen(true)
+  }
+
+  
+  const handleSaveNote = (updatedNote) => {
+    // Implementar la lógica para guardar la nota editada
+    setNoteFormOpen(false)
+    setNoteToEdit(null)
+  }
+
+  const handleShareNote = (id) => {
+    setSelectedNoteId(id)
+    setShareModalOpen(true)
+  }
+
+  const handleShareWithUser = (user) => {
+    alert(`Compartiste la nota con el ID: ${selectedNoteId} con ${user}`)
+    setShareModalOpen(false)
+  }
+
+  const handleShowPinnedAndRecentNotes = () => {
+    setShowArchivedNotes(false);
+    fetchNotes(1); 
+  };
+
   return (
-    <div className="h-screen flex bg-slate-50 ">
+    <div className="h-screen flex bg-slate-50">
       <aside className="w-1/5 p-2 g-10 bg-slate-400 text-white">
-        <Sidebar />
+        <Sidebar isLoggedIn={isLoggedIn} onShowArchivedNotes={handleShowArchivedNotes} />
       </aside>
       <main className="w-full bg-slate-200 overflow-auto">
-        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} onLogin={() => setView('login')} onRegister={() => setView('register')} />
-        {isLoggedIn && view === 'notes' && (
-          <NoteList notes={notes} onDeleteNote={handleDeleteNote} onEditNote={handleEditNote} onPinNote={handlePinNote} />
+        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} userName={"Usuario"} />
+        {isLoggedIn ? (
+          <div className="p-4">
+             {showArchivedNotes ? (
+              <>
+                <h2 className="text-2xl font-bold mb-4">Notas Archivadas</h2>
+                <NoteList notes={archivedNotes} onDelete={handleDeleteNote} onPin={handlePinNote} onShare={handleShareNote} onEdit={handleEditNote}/>
+                <button
+                  onClick={handleShowPinnedAndRecentNotes}
+                  className="mt-4 text-blue-500 hover:underline"
+                >
+                  Volver a Notas Fijadas y Recientes
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-2xl font-bold mb-4">Notas Fijadas</h2>
+                <NoteList notes={pinnedNotes} onDelete={handleDeleteNote} onPin={handlePinNote} onShare={handleShareNote} onEdit={handleEditNote}/>
+                <h2 className="text-2xl font-bold mb-4 mt-8">Notas Recientes</h2>
+                <NoteList notes={recentNotes} onDelete={handleDeleteNote} onPin={handlePinNote} onShare={handleShareNote} onEdit={handleEditNote}/>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <h1 className="text-4xl font-bold text-gray-700">NoteCraft</h1>
+          </div>
         )}
-        {isLoggedIn && view === 'edit' && <NoteForm note={noteToEdit} onSave={handleUpdateNote} />}
+        {isShareModalOpen && (
+          <ShareModal
+            isOpen={isShareModalOpen}
+            onClose={() => setShareModalOpen(false)}
+            onShare={handleShareWithUser}
+          />
+        )}
+        {isNoteFormOpen && (
+          <NoteEdit
+            isOpen={isNoteFormOpen}
+            onClose={() => setNoteFormOpen(false)}
+            saveNote={handleSaveNote}
+            noteToEdit={noteToEdit}
+          />
+        )}
       </main>
     </div>
-  );
+  )
 }
 
-export default Home;
+export default Home
