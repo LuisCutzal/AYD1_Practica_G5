@@ -1,46 +1,77 @@
-import { useState } from 'react';
+import { useState } from 'react'
+import propTypes from 'prop-types'
 
-// eslint-disable-next-line react/prop-types
-const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [tag, setTag] = useState('');
-    const [errors, setErrors] = useState({});
+const NoteForm = ({ isOpen, onClose, existingTags, saveNote }) => {
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [tag, setTag] = useState('')
+    const [newTag, setNewTag] = useState('')
+    const [errors, setErrors] = useState({})
 
-    if (!isOpen) return null
-
-    //validate title is not empty
     const validateForm = () => {
-        const newErros = {}
+        const newErrors = {}
         if (!title.trim()) {
-            newErros.title = 'El título no puede estar vacío';
+            newErrors.title = 'El título no puede estar vacío'
         }
-        if (!tag.trim()) {
-            newErros.tag = 'La etiqueta no puede estar vacía';
+        if (!tag.trim() && !newTag.trim()) {
+            newErrors.tag = 'Debes seleccionar o crear una etiqueta'
         }
-        setErrors(newErros);
-        return Object.keys(newErros).length === 0;
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
     }
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault()
 
         if (validateForm()) {
-            // eslint-disable-next-line react/prop-types
-            if (!existingTags.includes(tag)) {
-                addTag(tag)
-            }
-            saveNote({
+            const finalTag = newTag.trim() ? newTag : tag
+            const payload = {
                 title,
                 description,
-                tag,
-            })
+                id_user: localStorage.getItem('userId'),
+                id_label: existingTags.includes(finalTag) ? existingTags.indexOf(finalTag) + 1 : null,
+                label: newTag.trim() ? newTag : null,
+            }
+
+            // get token from local storage
+            const token = localStorage.getItem('token')
+
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                })
+
+                if (response.ok) {
+                    const data = await response.json()
+                    alert('Nota registrada correctamente')
+                    saveNote({
+                        id: data.data[0].id,
+                        title: data.data[0].title,
+                        description: data.data[0].description,
+                        tag: finalTag
+                    })
+                } else {
+                    alert('Error al registrar la nota')
+                }
+            } catch (error) {
+                console.error('Error:', error)
+                alert('Error en la solicitud')
+            }
+
             setTitle('')
             setDescription('')
             setTag('')
+            setNewTag('')
             onClose()
         }
     }
+
+    if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -80,15 +111,43 @@ const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
                         <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="tag">
                             Etiqueta
                         </label>
-                        <input
+                        <select
                             id="tag"
-                            type="text"
                             value={tag}
-                            onChange={(e) => setTag(e.target.value)}
-                            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.tag ? 'border-red-500' : ''
-                                }`}
-                            placeholder="Etiqueta de la nota"
-                        />
+                            onChange={(e) => {
+                                setTag(e.target.value)
+                                if (e.target.value) {
+                                    setNewTag('')
+                                }
+                            }}
+                            className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.tag ? 'border-red-500' : ''}`}
+                        >
+                            <option value="">Seleccionar etiqueta...</option>
+                            {existingTags.map((tagOption) => (
+                                <option key={tagOption} value={tagOption}>
+                                    {tagOption}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="mt-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="newTag">
+                                O crear nueva etiqueta
+                            </label>
+                            <input
+                                id="newTag"
+                                type="text"
+                                value={newTag}
+                                onChange={(e) => {
+                                    setNewTag(e.target.value)
+                                    if (e.target.value.trim()) {
+                                        setTag('')
+                                    }
+                                }}
+                                className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errors.tag ? 'border-red-500' : ''}`}
+                                placeholder="Nueva etiqueta"
+                                disabled={!!tag}
+                            />
+                        </div>
                         {errors.tag && <p className="text-red-500 text-xs italic">{errors.tag}</p>}
                     </div>
 
@@ -110,7 +169,15 @@ const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
                 </form>
             </div>
         </div>
-    );
+    )
 }
 
-export default NoteForm;
+NoteForm.propTypes = {
+    isOpen: propTypes.bool.isRequired,
+    onClose: propTypes.func.isRequired,
+    existingTags: propTypes.arrayOf(propTypes.string).isRequired,
+    addTag: propTypes.func.isRequired,
+    saveNote: propTypes.func.isRequired
+}
+
+export default NoteForm
