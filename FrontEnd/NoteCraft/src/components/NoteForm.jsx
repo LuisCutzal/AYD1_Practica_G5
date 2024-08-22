@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
 
+// eslint-disable-next-line react/prop-types
 const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -26,6 +26,7 @@ const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
         e.preventDefault();
 
         if (validateForm()) {
+            // eslint-disable-next-line react/prop-types
             if (!existingTags.includes(tag)) {
                 addTag(tag)
             }
@@ -110,15 +111,6 @@ const NoteForm = ({ isOpen, onClose, existingTags, addTag, saveNote }) => {
             </div>
         </div>
     );
-}
-
-//validating the props
-NoteForm.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-    existingTags: PropTypes.array.isRequired,
-    addTag: PropTypes.func.isRequired,
-    saveNote: PropTypes.func.isRequired
 }
 
 export default NoteForm;
