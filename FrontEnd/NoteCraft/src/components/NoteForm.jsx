@@ -35,9 +35,10 @@ const NoteForm = ({ isOpen, onClose, existingTags, saveNote }) => {
 
             // get token from local storage
             const token = localStorage.getItem('token')
+            const user_id = localStorage.getItem('user_id')
 
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note`, {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/user_id`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

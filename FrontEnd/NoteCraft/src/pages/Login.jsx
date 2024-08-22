@@ -1,6 +1,40 @@
 import React from 'react'
 
 const Login = () => {
+
+  // post request to login
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const email = document.getElementById('username').value
+    const password = document.getElementById('password').value
+    const body = {
+      email,
+      password
+    }
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+      const data = await response.json()
+      alert(data)
+      if (data.error) {
+        alert(data.error)
+      } else {
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', data.user)
+        localStorage.setItem('user_id', data.user_id)
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
   return (
     <div className='vh-100 bg-[url("./img/login.jpg")] bg-cover bg-center'>
       <div className='d-flex row h-100 '>
@@ -11,7 +45,7 @@ const Login = () => {
           </h1>
         </div>
         {/* <div className='col-sm-6 offset-sm-6 p-5 justify-content-center align-items-center '> */}
-          <div className='col-sm-6 d-flex justify-content-center align-items-center'>
+        <div className='col-sm-6 d-flex justify-content-center align-items-center'>
 
           <div className='d-flex justify-content-center '>
             <div className='card card2 d-flex justify-content-center align-items-center bg-gray-950 bg-transparent/65'>
@@ -68,6 +102,7 @@ const Login = () => {
                     <button
                       className='btn btn-lg btn-registro w-100 mb-2 bg-blue-500 text-white hover:text-white hover:bg-yellow-500'
                       type='submit'
+                      onClick={handleSubmit}
                     >
                       Ingresar
                     </button>

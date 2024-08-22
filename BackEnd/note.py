@@ -233,7 +233,7 @@ def get_notes(cursor, user_id):
     return {"recent": recent, "pinned": pinned}
 
 def get_notes_route(app):
-    @app.route('/note/<int:action>/<int:user_id>', methods=['GET'])
+    @app.route('/note/<action>/<user_id>', methods=['GET'])
     @token_required
     def get_note(action, user_id):
         """
@@ -285,7 +285,8 @@ def get_notes_route(app):
         try:
             connection = get_connection()
             cursor = connection.cursor()
-
+            print(action)
+            print(user_id)
             if action == 1:
                 response_data = get_notes(cursor, user_id)
             
