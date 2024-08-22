@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 //local imports
-import NoteForm from "../components/NoteForm";
+import NoteForm from "./NoteForm";
 
 function Sidebar() {
     const [isModalOpen, setModalOpen] = useState(false);
