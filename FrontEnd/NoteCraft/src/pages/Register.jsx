@@ -61,6 +61,7 @@ const Register = () => {
           } else if (responseData.status === 'error') {
             console.error('Error', responseData.msg);
           }
+          window.location.href = '/login'
         } else {
           console.log('RESPONSE', response);
           const errorResponse = await response.json(); // Recupera el cuerpo del mensaje  de error
