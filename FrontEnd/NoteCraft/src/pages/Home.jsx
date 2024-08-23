@@ -27,8 +27,9 @@ function Home() {
 
   const fetchNotes = async (action) => {
     const token = localStorage.getItem('token');
+    const user_id = localStorage.getItem('user_id');
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/${action}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/${action}/${user_id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -44,7 +45,9 @@ function Home() {
           setArchivedNotes(data.data);
           setShowArchivedNotes(true); // Mostrar notas archivadas
         }
-      } else {
+      } else if(response.status === 202){
+        console.log("No tiene notas")
+      }else {
         console.error('Error al cargar las notas');
       }
     } catch (error) {
@@ -103,7 +106,7 @@ function Home() {
         <Sidebar isLoggedIn={isLoggedIn} onShowArchivedNotes={handleShowArchivedNotes} />
       </aside>
       <main className="w-full bg-slate-200 overflow-auto">
-        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} userName={"Usuario"} />
+        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} userName={localStorage.getItem("user")} />
         {isLoggedIn ? (
           <div className="p-4">
              {showArchivedNotes ? (

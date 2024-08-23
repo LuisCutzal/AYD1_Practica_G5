@@ -16,7 +16,7 @@ const NoteList = ({notes, onDelete, onEdit, onPin, onShare }) => {
             id={note.id}
             title={note.title} 
             description={note.description} 
-            tag={note.tag}
+            tag={note.label}
             isPinned={note.isPinned}
             onDelete={onDelete}
             onEdit={()=>onEdit(note)}

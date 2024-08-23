@@ -28,7 +28,7 @@ const NoteForm = ({ isOpen, onClose, existingTags, saveNote }) => {
             const payload = {
                 title,
                 description,
-                id_user: localStorage.getItem('userId'),
+                id_user: localStorage.getItem('user_id'),
                 id_label: existingTags.includes(finalTag) ? existingTags.indexOf(finalTag) + 1 : null,
                 label: newTag.trim() ? newTag : null,
             }

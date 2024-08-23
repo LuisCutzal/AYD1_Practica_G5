@@ -1,8 +1,9 @@
 from flask import Flask
 from login import login_routes, register_route, logouto_route
 from note import add_note_route, change_note_status_route, get_notes_route, unarchive_note_route, get_labels_route
-
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 """
 @app.route("/hola", methods=['GET'])
 def hola():

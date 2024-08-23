@@ -1,16 +1,32 @@
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 
 //local imports
 import Home from './pages/Home'
 import Login from './pages/Login'
-import Register from './pages/Register'
-import Profile from './pages/Profile'
+
 
 function App() {
-
+  const isAuthenticated = !!localStorage.getItem('token');
   return (
-    <>
-      <Login />
-    </>
+
+
+    <Router>
+
+      <Routes>
+
+        <Route path="/login" element={<Login />} />
+
+        <Route
+
+          path="/"
+
+          element={isAuthenticated ? <Home /> : <Navigate to="/login" />}
+
+        />
+
+      </Routes>
+
+    </Router>
   )
 }
 
