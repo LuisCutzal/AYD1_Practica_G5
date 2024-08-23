@@ -135,7 +135,7 @@ def get_id_label(label, cursor):
     return record
 
 def change_note_status_route(app):
-    @app.route('/note/change_status/<int:user_id>', methods=['PUT'])
+    @app.route('/note/change_status/<user_id>/<id_note>', methods=['PUT'])
     @token_required
     def update_status(user_id):
         """

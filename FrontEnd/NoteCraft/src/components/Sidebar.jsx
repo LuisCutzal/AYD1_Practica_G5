@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import propTypes from "prop-types";
 
 //local imports
@@ -6,7 +6,7 @@ import NoteForm from "./NoteForm";
 
 function Sidebar({ isLoggedIn, onShowArchivedNotes }) {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [tags, setTags] = useState(['Trabajo', 'Personal']);
+  const [tags, setTags] = useState([]);
   const [notes, setNotes] = useState([]);
 
   const openModal = () => {
@@ -26,6 +26,50 @@ function Sidebar({ isLoggedIn, onShowArchivedNotes }) {
   const saveNote = (note) => {
     setNotes([...notes, note]);
   };
+
+  //fecth tags from the server 
+
+  useEffect(() => {
+
+    const fetchTags = async () => {
+
+      const token = localStorage.getItem("token");
+
+      try {
+
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/label`, {
+
+          method: "GET",
+
+          headers: {
+
+            Authorization: `Bearer ${token}`,
+
+          },
+
+        });
+
+        if (response.ok) {
+
+          const data = await response.json();
+          const tags = data.data.map((tag) => tag.name)
+          setTags([...new Set(tags)])
+
+        }
+
+
+      } catch (error) {
+
+        console.error("Error en la solicitud:", error);
+
+      }
+
+    };
+
+    fetchTags();
+
+  }, []);
+
 
   return (
     <>
