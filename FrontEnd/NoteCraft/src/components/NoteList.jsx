@@ -3,7 +3,7 @@ import types from 'prop-types';
 //local imports 
 import NoteCard from "./NoteCard";
 
-const NoteList = ({notes, onDelete, onEdit, onPin, onShare }) => {
+const NoteList = ({notes, onDelete, onEdit, onPin, onShare, onArchive }) => {
     if (notes.length === 0) {
         return <p className="text-center text-gray-500 mt-10">No hay notas disponibles.</p>;
       }
@@ -22,6 +22,7 @@ const NoteList = ({notes, onDelete, onEdit, onPin, onShare }) => {
             onEdit={()=>onEdit(note)}
             onPin={()=>onPin(note.id)}
             onShare={()=>onShare(note.id)}
+            onArchive={()=>onArchive(note.id, note.isArchived)}
             />
           ))}
         </div>

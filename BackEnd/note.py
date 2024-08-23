@@ -135,7 +135,7 @@ def get_id_label(label, cursor):
     return record
 
 def change_note_status_route(app):
-    @app.route('/note/change_status/<user_id>/<id_note>', methods=['PUT'])
+    @app.route('/note/change_status/<user_id>', methods=['PUT'])
     @token_required
     def update_status(user_id):
         """
@@ -284,8 +284,12 @@ def get_notes_route(app):
         try:
             connection = get_connection()
             cursor = connection.cursor()
-            response_data=get_notes(cursor, user_id)
-            return jsonify({"msg": "Lista de notas", "data": response_data}), 200
+            if (action == "1"):
+                response_data=get_notes(cursor, user_id)
+                return jsonify({"msg": "Lista de notas", "data": response_data}), 200
+            elif(action == "2"):
+                response_data=get_archived_notes(cursor, user_id)
+                return jsonify({"msg": "Lista de notas archivadas", "data": response_data}), 200
         
         except Exception as e:
             print(e)
@@ -398,3 +402,31 @@ def get_labels(cursor):
     results = cursor.fetchall()
 
     return [{"id": result[0], "name": result[1]} for result in results]
+
+def updateNote(app):
+    @app.route('/note/update/<id_nota>', methods=['PUT'])
+    @token_required
+    def update_note(id_nota):
+        data = request.json
+        nuevo_titulo = data.get("title")
+        nueva_descripcion = data.get("description") 
+        print(data)
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            sql = """
+                UPDATE nota SET titulo = :titulo, descripcion = :descripcion WHERE id_nota = :id_nota
+            """
+            cursor.execute(sql, {
+                'titulo': nuevo_titulo,
+                'descripcion': nueva_descripcion,
+                'id_nota': id_nota
+            })
+            connection.commit()
+            return jsonify({"msg": "Nota actualizada correctamente"}), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"msg": "Error al actualizar la nota", "error": str(e)}), 500
+        finally:
+            cursor.close()
+            connection.close()
