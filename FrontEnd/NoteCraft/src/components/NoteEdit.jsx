@@ -11,7 +11,7 @@ const NoteEdit = ({ isOpen, onClose, saveNote, noteToEdit }) => {
         if (noteToEdit) {
             setTitle(noteToEdit.title)
             setDescription(noteToEdit.description)
-            setTag(noteToEdit.tag)
+            setTag(noteToEdit.label)
         }
     }, [noteToEdit])
 
