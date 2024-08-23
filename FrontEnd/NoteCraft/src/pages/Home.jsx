@@ -60,7 +60,11 @@ function Home() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setIsLoggedIn(false)
+    window.location.href = '/login'
   }
 
   const handleDeleteNote = (id) => {
