@@ -45,7 +45,9 @@ function Home() {
           setArchivedNotes(data.data);
           setShowArchivedNotes(true); // Mostrar notas archivadas
         }
-      } else {
+      } else if(response.status === 202){
+        console.log("No tiene notas")
+      }else {
         console.error('Error al cargar las notas');
       }
     } catch (error) {

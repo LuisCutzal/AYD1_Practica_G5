@@ -217,7 +217,6 @@ def get_notes(cursor, user_id):
 
     cursor.execute(sql, {'user_id': user_id})
     results = cursor.fetchall()
-
     recent = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
 
     sql = """
@@ -285,20 +284,11 @@ def get_notes_route(app):
         try:
             connection = get_connection()
             cursor = connection.cursor()
-            print(action)
-            print(user_id)
-            if action == 1:
-                response_data = get_notes(cursor, user_id)
-            
-            elif action == 2:
-                response_data = get_archived_notes(cursor, user_id)
-            
-            else:
-                return jsonify({"msg": "Error al obtener las notas", "error": "Accion inválida"}), 500
-
+            response_data=get_notes(cursor, user_id)
             return jsonify({"msg": "Lista de notas", "data": response_data}), 200
         
         except Exception as e:
+            print(e)
             return jsonify({"msg": "Error al obtener las notas", "error": str(e)}), 500
         
         finally:

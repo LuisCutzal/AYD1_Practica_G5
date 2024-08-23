@@ -28,17 +28,16 @@ const NoteForm = ({ isOpen, onClose, existingTags, saveNote }) => {
             const payload = {
                 title,
                 description,
-                id_user: localStorage.getItem('userId'),
+                id_user: localStorage.getItem('user_id'),
                 id_label: existingTags.includes(finalTag) ? existingTags.indexOf(finalTag) + 1 : null,
                 label: newTag.trim() ? newTag : null,
             }
 
             // get token from local storage
             const token = localStorage.getItem('token')
-            const user_id = localStorage.getItem('user_id')
 
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/user_id`, {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
