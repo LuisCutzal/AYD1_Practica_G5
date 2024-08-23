@@ -78,10 +78,10 @@ def add_note_route(app):
 
             sql = """
                 SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
-                JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 1 ORDER BY id_nota
+                JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 1 and n.ID_USUARIO_N = :id_user ORDER BY id_nota
             """
 
-            cursor.execute(sql)
+            cursor.execute(sql, {'id_user': data.get("id_user")})
             results = cursor.fetchall()
 
             response_data = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
@@ -135,9 +135,9 @@ def get_id_label(label, cursor):
     return record
 
 def change_note_status_route(app):
-    @app.route('/note/change_status', methods=['PUT'])
+    @app.route('/note/change_status/<user_id>', methods=['PUT'])
     @token_required
-    def update_status():
+    def update_status(user_id):
         """
         # status:
         # delete - 0
@@ -190,7 +190,7 @@ def change_note_status_route(app):
             cursor.execute(sql, {'status': data.get('status'), 'id': data.get('id')})
             connection.commit()
 
-            response_data = get_notes(cursor)
+            response_data = get_notes(cursor, user_id)
 
             status = {
                 0: 'Eliminada',
@@ -208,16 +208,15 @@ def change_note_status_route(app):
             cursor.close()
             connection.close()
 
-def get_notes(cursor):
+def get_notes(cursor, user_id):
 
     sql = """
         SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
-        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 1 ORDER BY id_nota
+        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 1 and n.ID_USUARIO_N = :user_id ORDER BY id_nota
     """
 
-    cursor.execute(sql)
+    cursor.execute(sql, {'user_id': user_id})
     results = cursor.fetchall()
-
     recent = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
 
     sql = """
@@ -233,9 +232,9 @@ def get_notes(cursor):
     return {"recent": recent, "pinned": pinned}
 
 def get_notes_route(app):
-    @app.route('/note/<int:action>', methods=['GET'])
+    @app.route('/note/<action>/<user_id>', methods=['GET'])
     @token_required
-    def get_note(action):
+    def get_note(action, user_id):
         """
         # action:
         # pinned and recent notes - 1
@@ -285,33 +284,29 @@ def get_notes_route(app):
         try:
             connection = get_connection()
             cursor = connection.cursor()
-
-            if action == 1:
-                response_data = get_notes(cursor)
-            
-            elif action == 2:
-                response_data = get_archived_notes(cursor)
-            
-            else:
-                return jsonify({"msg": "Error al obtener las notas", "error": "Accion inválida"}), 500
-
-            return jsonify({"msg": "Lista de notas", "data": response_data}), 200
+            if (action == "1"):
+                response_data=get_notes(cursor, user_id)
+                return jsonify({"msg": "Lista de notas", "data": response_data}), 200
+            elif(action == "2"):
+                response_data=get_archived_notes(cursor, user_id)
+                return jsonify({"msg": "Lista de notas archivadas", "data": response_data}), 200
         
         except Exception as e:
+            print(e)
             return jsonify({"msg": "Error al obtener las notas", "error": str(e)}), 500
         
         finally:
             cursor.close()
             connection.close()
 
-def get_archived_notes(cursor):
+def get_archived_notes(cursor, user_id):
 
     sql = """
         SELECT n.ID_NOTA id, n.TITULO title, n.DESCRIPCION description, n.COMPARTIDO shared, e.NOMBRE name FROM nota n
-        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 3 ORDER BY id_nota
+        JOIN etiqueta e ON n.ID_ETIQUETA_N = e.id_etiqueta WHERE n.ESTADO = 3 and n.ID_USUARIO_N = :user_id ORDER BY id_nota
     """
 
-    cursor.execute(sql)
+    cursor.execute(sql, {'user_id': user_id})
     results = cursor.fetchall()
 
     response_data = [{"id": result[0], "title": result[1], "description": result[2], "shared": result[3], "label": result[4]} for result in results]
@@ -319,9 +314,9 @@ def get_archived_notes(cursor):
     return response_data
 
 def unarchive_note_route(app):
-    @app.route('/note/unarchive', methods=['PUT'])
+    @app.route('/note/unarchive/<int:user_id>', methods=['PUT'])
     @token_required
-    def unarchive_note():
+    def unarchive_note(user_id):
         """
         # REQUEST
         {
@@ -356,7 +351,7 @@ def unarchive_note_route(app):
             cursor.execute(sql, {'id': data.get('id')})
             connection.commit()
 
-            response_data = get_archived_notes(cursor)
+            response_data = get_archived_notes(cursor, user_id)
 
             return jsonify({"msg": "Nota desarchivada correctamente", "data": response_data}), 200
         
@@ -407,3 +402,31 @@ def get_labels(cursor):
     results = cursor.fetchall()
 
     return [{"id": result[0], "name": result[1]} for result in results]
+
+def updateNote(app):
+    @app.route('/note/update/<id_nota>', methods=['PUT'])
+    @token_required
+    def update_note(id_nota):
+        data = request.json
+        nuevo_titulo = data.get("title")
+        nueva_descripcion = data.get("description") 
+        print(data)
+        try:
+            connection = get_connection()
+            cursor = connection.cursor()
+            sql = """
+                UPDATE nota SET titulo = :titulo, descripcion = :descripcion WHERE id_nota = :id_nota
+            """
+            cursor.execute(sql, {
+                'titulo': nuevo_titulo,
+                'descripcion': nueva_descripcion,
+                'id_nota': id_nota
+            })
+            connection.commit()
+            return jsonify({"msg": "Nota actualizada correctamente"}), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"msg": "Error al actualizar la nota", "error": str(e)}), 500
+        finally:
+            cursor.close()
+            connection.close()

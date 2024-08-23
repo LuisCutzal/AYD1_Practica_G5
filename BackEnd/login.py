@@ -12,13 +12,13 @@ def login_routes(app):
             connection = get_connection()
             cursor = connection.cursor()
             sql = """
-            SELECT CORREO FROM USUARIO WHERE CORREO = :email AND CONTRASEÑA = :password
+            SELECT CORREO, ID_USUARIO FROM USUARIO WHERE CORREO = :email AND CONTRASEÑA = :password
             """
             cursor.execute(sql, {'email': email, 'password': password})
             result = cursor.fetchone()
             if result:
                 token = result[0].split('@')[0] #para mantener el login usando localstorage
-                return jsonify({"user": email, "token": token}), 200
+                return jsonify({"user": email, "token": token, "user_id": result[1]}), 200
             else:
                 return jsonify({"Msg": "correo o contraseña invalidas"}), 401
         except Exception as e:
