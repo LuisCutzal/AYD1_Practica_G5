@@ -404,7 +404,7 @@ def get_labels(cursor):
     return [{"id": result[0], "name": result[1]} for result in results]
 
 def updateNote(app):
-    @app.route('/note/update/<id_nota>', methods=['PUT'])
+    @app.route('/note/update/<id_nota>', methods=['POST'])
     @token_required
     def update_note(id_nota):
         data = request.json
@@ -422,6 +422,9 @@ def updateNote(app):
                 'descripcion': nueva_descripcion,
                 'id_nota': id_nota
             })
+            print(nuevo_titulo)
+            print(nueva_descripcion)
+            print(id_nota)
             connection.commit()
             return jsonify({"msg": "Nota actualizada correctamente"}), 200
         except Exception as e:
