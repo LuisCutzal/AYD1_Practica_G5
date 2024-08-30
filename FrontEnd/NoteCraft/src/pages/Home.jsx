@@ -175,8 +175,11 @@ function Home() {
     const user_id = localStorage.getItem('user_id');
   
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/update/${user_id}`, {
-        method: 'PUT',
+      console.log("titulo", note.title)
+      console.log("descripcion", note.description)
+      console.log("id", note.id)
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/note/update/${note.id}`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
